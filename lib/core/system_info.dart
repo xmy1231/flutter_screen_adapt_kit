@@ -4,18 +4,18 @@ import 'package:flutter/widgets.dart';
 enum FoldState { unknown, folded, halfFolded, unfolded }
 
 class SystemInfo {
-  Size physicalSize;
-  double dpr;
-  Size logicalSize;
-  EdgeInsets viewPadding;
-  EdgeInsets padding;
-  EdgeInsets viewInsets;
-  double systemTextScale;
-  FoldState foldState;
+  final Size physicalSize;
+  final double dpr;
+  final Size logicalSize;
+  final EdgeInsets viewPadding;
+  final EdgeInsets padding;
+  final EdgeInsets viewInsets;
+  final double systemTextScale;
+  final FoldState foldState;
 
-  SystemInfo({
+  const SystemInfo({
     this.physicalSize = Size.zero,
-    this.dpr = 0,
+    this.dpr = 1.0,
     this.logicalSize = Size.zero,
     this.viewPadding = EdgeInsets.zero,
     this.padding = EdgeInsets.zero,
@@ -27,6 +27,7 @@ class SystemInfo {
   factory SystemInfo.fromFlutterView(ui.FlutterView view) {
     final dpr = view.devicePixelRatio;
     final physicalSize = view.physicalSize;
+    final vp = view.padding;
     return SystemInfo(
       physicalSize: physicalSize,
       dpr: dpr,
@@ -34,9 +35,9 @@ class SystemInfo {
         physicalSize.width / dpr,
         physicalSize.height / dpr,
       ),
-      viewPadding: EdgeInsets.zero,
-      padding: EdgeInsets.zero,
-      viewInsets: EdgeInsets.zero,
+      viewPadding: EdgeInsets.fromViewPadding(vp, dpr),
+      padding: EdgeInsets.fromViewPadding(vp, dpr),
+      viewInsets: EdgeInsets.fromViewPadding(view.viewInsets, dpr),
       systemTextScale: 1.0,
     );
   }
