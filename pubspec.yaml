@@ -1,7 +1,7 @@
 name: flutter_adapt_kit
 description: "Zero-code-invasion screen adaptation plugin for Flutter. Supports scaling, safe area, and text adaptation."
 version: 0.1.0
-homepage: https://github.com/your-org/flutter_adapt_kit
+homepage: https://github.com/user/flutter_adapt_kit
 
 environment:
   sdk: ^3.0.0
