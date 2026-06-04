@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_adapt_kit/entry/adapt_kit.dart';
 
 class AdaptDebugPanel extends StatefulWidget {
   final double designWidth;
@@ -26,6 +28,7 @@ class _AdaptDebugPanelState extends State<AdaptDebugPanel> {
 
   @override
   Widget build(BuildContext context) {
+    if (!kDebugMode) return const SizedBox.shrink();
     return Stack(
       children: [
         Positioned(
@@ -61,6 +64,26 @@ class _AdaptDebugPanelState extends State<AdaptDebugPanel> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class AdaptDebugOverlay extends StatelessWidget {
+  const AdaptDebugOverlay({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!kDebugMode) return const SizedBox.shrink();
+    final result = context.adaptScaleResult;
+    final notchInfo = context.adaptNotchInfo;
+    if (result == null) return const SizedBox.shrink();
+
+    return AdaptDebugPanel(
+      designWidth: result.designSize.width,
+      designHeight: result.designSize.height,
+      dpr: result.adaptedDpr,
+      scaleRatio: result.scale,
+      notchType: notchInfo?.type.name,
     );
   }
 }
