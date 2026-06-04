@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_adapt_kit/entry/adapt_kit.dart';
 
 enum UnscaleMode { full, context }
 
@@ -18,10 +19,10 @@ class UnscaleBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contextScale = MediaQuery.textScalerOf(context).textScaleFactor;
+    final adaptScale = context.adaptScaleResult?.scale;
     final uiScale = switch (mode) {
-      UnscaleMode.full => dpr * 375 / designWidth,
-      UnscaleMode.context => contextScale,
+      UnscaleMode.full => adaptScale ?? (dpr * 375 / designWidth),
+      UnscaleMode.context => MediaQuery.textScalerOf(context).textScaleFactor,
     };
     final inverse = uiScale == 0.0 ? 1.0 : 1.0 / uiScale;
     return Transform(
