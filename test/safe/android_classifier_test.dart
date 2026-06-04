@@ -49,5 +49,29 @@ void main() {
       final result = classifier.classify(info);
       expect(result.topInset, 24);
     });
+
+    test('top=25 → none (status bar threshold)', () {
+      final info = SystemInfo(padding: const EdgeInsets.only(top: 25));
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.none);
+    });
+
+    test('top=35 → waterdrop (upper bound)', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(top: 35, bottom: 0),
+        viewPadding: const EdgeInsets.only(top: 35, bottom: 0),
+      );
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.waterdrop);
+    });
+
+    test('top=36 → holePunch (crosses waterdrop upper bound)', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(top: 36, bottom: 20),
+        viewPadding: const EdgeInsets.only(top: 36, bottom: 20),
+      );
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.holePunch);
+    });
   });
 }

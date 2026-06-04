@@ -55,5 +55,55 @@ void main() {
       expect((padding.padding as EdgeInsets).top, 44);
       expect((padding.padding as EdgeInsets).bottom, 34);
     });
+
+    testWidgets('SafeMode.auto adds padding when notch present', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: const SafeAdapter(
+            notchInfo: NotchInfo(type: NotchType.wideNotch, topInset: 44),
+            mode: SafeMode.auto,
+            child: Text('Hello'),
+          ),
+        ),
+      );
+      expect(find.byType(Padding), findsOneWidget);
+    });
+
+    testWidgets('SafeMode.auto skips padding when notch is none', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: const SafeAdapter(
+            notchInfo: NotchInfo.zero,
+            mode: SafeMode.auto,
+            child: Text('Hello'),
+          ),
+        ),
+      );
+      expect(find.byType(Padding), findsNothing);
+    });
+
+    testWidgets('SafeMode.minimum uses only top/bottom insets, ignores left/right', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: const SafeAdapter(
+            notchInfo: NotchInfo(
+              type: NotchType.wideNotch,
+              topInset: 44,
+              bottomInset: 34,
+              leftInset: 10,
+              rightInset: 5,
+            ),
+            mode: SafeMode.minimum,
+            child: Text('Hello'),
+          ),
+        ),
+      );
+      final padding = tester.widget<Padding>(find.byType(Padding));
+      final insets = padding.padding as EdgeInsets;
+      expect(insets.top, 44);
+      expect(insets.bottom, 34);
+      expect(insets.left, 0);
+      expect(insets.right, 0);
+    });
   });
 }

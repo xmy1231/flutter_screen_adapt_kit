@@ -54,6 +54,9 @@ class ScaleCalc {
     Size designSize,
     AdaptStrategy strategy,
   ) {
+    if (designSize == Size.zero || logicalSize == Size.zero) {
+      return 1.0;
+    }
     switch (strategy) {
       case AdaptStrategy.width:
         return logicalSize.width / designSize.width;

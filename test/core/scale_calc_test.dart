@@ -41,5 +41,18 @@ void main() {
       expect(result.designSize, design);
       expect(result.logicalSize, info.logicalSize);
     });
+
+    test('zero designSize returns 1.0 (no scaling)', () {
+      final info = SystemInfo(logicalSize: const Size(390, 844), dpr: 3.0);
+      final result = ScaleCalc.compute(info, Size.zero, AdaptStrategy.width);
+      expect(result.scale, 1.0);
+      expect(result.adaptedDpr, 3.0);
+    });
+
+    test('zero logicalSize returns 1.0 (no scaling)', () {
+      final info = SystemInfo(logicalSize: Size.zero, dpr: 3.0);
+      final result = ScaleCalc.compute(info, const Size(375, 812), AdaptStrategy.width);
+      expect(result.scale, 1.0);
+    });
   });
 }

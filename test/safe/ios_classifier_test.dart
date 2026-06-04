@@ -42,5 +42,32 @@ void main() {
       final result = classifier.classify(info);
       expect(result.type, NotchType.none);
     });
+
+    test('top=49 → wideNotch (below dynamic island threshold)', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(top: 49, bottom: 34),
+        viewPadding: const EdgeInsets.only(top: 49, bottom: 34),
+      );
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.wideNotch);
+    });
+
+    test('top=50 → dynamicIsland (at threshold)', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(top: 50, bottom: 34),
+        viewPadding: const EdgeInsets.only(top: 50, bottom: 34),
+      );
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.dynamicIsland);
+    });
+
+    test('top=25 → wideNotch (catch-all, above 24 threshold)', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(top: 25),
+        viewPadding: const EdgeInsets.only(top: 25),
+      );
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.wideNotch);
+    });
   });
 }
