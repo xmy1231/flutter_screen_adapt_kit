@@ -1,11 +1,12 @@
 name: flutter_screen_adapt_kit
 description: "Flutter 零侵入式屏幕适配，支持缩放、安全区域和文本适配"
 version: 1.0.0
+repository: https://github.com/xmy1231/flutter_screen_adapt_kit
 homepage: https://github.com/xmy1231/flutter_screen_adapt_kit
 
 environment:
   sdk: ^3.0.0
-  flutter: ">=3.24.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   flutter:
@@ -14,4 +15,4 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
