@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screen_adapt_kit/core/hot_reload_guard.dart';
@@ -5,6 +7,9 @@ import 'package:flutter_screen_adapt_kit/core/scale_calc.dart';
 import 'package:flutter_screen_adapt_kit/core/scale_executor.dart';
 import 'package:flutter_screen_adapt_kit/core/status_bar_config.dart';
 import 'package:flutter_screen_adapt_kit/core/system_info.dart';
+import 'package:flutter_screen_adapt_kit/safe/android_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/harmony_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/ios_classifier.dart';
 import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 import 'package:flutter_screen_adapt_kit/safe/safe_adapter.dart';
 import 'package:flutter_screen_adapt_kit/text/text_scaler.dart';
@@ -59,6 +64,18 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
   bool get supportSystemTextScale => _supportSystemTextScale;
   double get safeTop => (_notchInfo ?? NotchInfo.zero).topInset;
   double get safeBottom => (_notchInfo ?? NotchInfo.zero).bottomInset;
+
+  NotchClassifier? get _defaultClassifier {
+    final String os = Platform.operatingSystem;
+
+    if (os == 'harmony' || os == 'harmonyos' || os == 'HarmonyOS') {
+      return const HarmonyOSNotchClassifier();
+    }
+    if (Platform.isIOS) return const IOSNotchClassifier();
+    if (Platform.isAndroid) return const AndroidNotchClassifier();
+
+    return null;
+  }
 
   @override
   void initState() {
@@ -181,7 +198,9 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
     }
 
     if (!_notchOverridden) {
-      _notchInfo = widget.classifier?.classify(info, orientation: info.orientation);
+      final effectiveClassifier = widget.classifier ?? _defaultClassifier;
+      _notchInfo =
+          effectiveClassifier?.classify(info, orientation: info.orientation);
     }
 
     setState(() {
@@ -198,7 +217,8 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
 
     final notchInfo = _notchInfo ?? NotchInfo.zero;
     final child = widget.classifier != null && notchInfo.type != NotchType.none
-        ? SafeAdapter(notchInfo: notchInfo, mode: widget.safeMode, child: widget.child)
+        ? SafeAdapter(
+            notchInfo: notchInfo, mode: widget.safeMode, child: widget.child)
         : widget.child;
 
     return _AdaptInherited(
@@ -247,18 +267,26 @@ extension AdaptContext on BuildContext {
   SystemInfo? get adaptSystemInfo => _AdaptInherited.of(this)?.info;
   NotchInfo? get adaptNotchInfo => _AdaptInherited.of(this)?.notchInfo;
   double get adaptScale => _AdaptInherited.of(this)?.scaleResult.scale ?? 1.0;
-  double get adaptDpr => _AdaptInherited.of(this)?.scaleResult.adaptedDpr ?? 1.0;
+  double get adaptDpr =>
+      _AdaptInherited.of(this)?.scaleResult.adaptedDpr ?? 1.0;
   double get adaptSafeTop => _AdaptInherited.of(this)?.notchInfo.topInset ?? 0;
-  double get adaptSafeBottom => _AdaptInherited.of(this)?.notchInfo.bottomInset ?? 0;
-  double get adaptSafeLeft => _AdaptInherited.of(this)?.notchInfo.leftInset ?? 0;
-  double get adaptSafeRight => _AdaptInherited.of(this)?.notchInfo.rightInset ?? 0;
-  TextBehavior get adaptTextBehavior => _AdaptInherited.of(this)?.textBehavior ?? TextBehavior.scale;
-  bool get adaptSupportSystemTextScale => _AdaptInherited.of(this)?.supportSystemTextScale ?? true;
-  FoldState? get adaptFoldState => _AdaptInherited.of(this)?.notchInfo.foldState;
+  double get adaptSafeBottom =>
+      _AdaptInherited.of(this)?.notchInfo.bottomInset ?? 0;
+  double get adaptSafeLeft =>
+      _AdaptInherited.of(this)?.notchInfo.leftInset ?? 0;
+  double get adaptSafeRight =>
+      _AdaptInherited.of(this)?.notchInfo.rightInset ?? 0;
+  TextBehavior get adaptTextBehavior =>
+      _AdaptInherited.of(this)?.textBehavior ?? TextBehavior.scale;
+  bool get adaptSupportSystemTextScale =>
+      _AdaptInherited.of(this)?.supportSystemTextScale ?? true;
+  FoldState? get adaptFoldState =>
+      _AdaptInherited.of(this)?.notchInfo.foldState;
   Rect? get adaptHingeBounds => _AdaptInherited.of(this)?.notchInfo.hingeBounds;
   bool get isFolded => _AdaptInherited.of(this)?.info.isFolded ?? false;
   bool get isFlat => _AdaptInherited.of(this)?.info.isFlat ?? true;
-  Orientation get adaptOrientation => _AdaptInherited.of(this)?.info.orientation ?? Orientation.portrait;
+  Orientation get adaptOrientation =>
+      _AdaptInherited.of(this)?.info.orientation ?? Orientation.portrait;
 
   double get statusBarHeight {
     final topInset = adaptSafeTop;
