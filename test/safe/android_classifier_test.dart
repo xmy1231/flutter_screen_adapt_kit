@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_adapt_kit/safe/android_classifier.dart';
-import 'package:flutter_adapt_kit/core/system_info.dart';
-import 'package:flutter_adapt_kit/safe/notch_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/android_classifier.dart';
+import 'package:flutter_screen_adapt_kit/core/system_info.dart';
+import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
 void main() {
   group('AndroidNotchClassifier', () {
@@ -72,6 +72,44 @@ void main() {
       );
       final result = classifier.classify(info);
       expect(result.type, NotchType.holePunch);
+    });
+
+    test('bottom inset present with small top → holePunch', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(top: 20, bottom: 30),
+        viewPadding: const EdgeInsets.only(top: 20, bottom: 30),
+      );
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.holePunch);
+      expect(result.bottomInset, 30);
+    });
+
+    test('landscape: left > 35 → holePunch', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(left: 40, right: 10),
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
+      expect(result.type, NotchType.holePunch);
+      expect(result.leftInset, 40);
+    });
+
+    test('landscape: left 25-35 → waterdrop', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(left: 30, right: 10),
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
+      expect(result.type, NotchType.waterdrop);
+    });
+
+    test('landscape: left <= 25 → none', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(left: 20, right: 20),
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
+      expect(result.type, NotchType.none);
     });
   });
 }

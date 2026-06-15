@@ -1,15 +1,16 @@
-name: flutter_adapt_kit_example
-description: Example app for flutter_adapt_kit
+name: flutter_screen_adapt_kit_example
+description: Example app for flutter_screen_adapt_kit
 publish_to: 'none'
 version: 1.0.0
 
 environment:
   sdk: ^3.12.0
+  flutter: ">=3.24.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_adapt_kit:
+  flutter_screen_adapt_kit:
     path: ../
 
 flutter:

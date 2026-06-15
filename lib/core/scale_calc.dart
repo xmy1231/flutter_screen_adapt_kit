@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_adapt_kit/core/system_info.dart';
+import 'package:flutter_screen_adapt_kit/core/system_info.dart';
 
 enum AdaptStrategy { width, height, min }
 
@@ -54,13 +54,12 @@ class ScaleCalc {
     Size designSize,
     AdaptStrategy strategy,
   ) {
-    if (designSize == Size.zero || logicalSize == Size.zero) {
-      return 1.0;
-    }
     switch (strategy) {
       case AdaptStrategy.width:
+        if (designSize.width == 0 || logicalSize.width == 0) return 1.0;
         return logicalSize.width / designSize.width;
       case AdaptStrategy.height:
+        if (designSize.height == 0 || logicalSize.height == 0) return 1.0;
         return logicalSize.height / designSize.height;
       case AdaptStrategy.min:
         final logicalMin =
@@ -71,6 +70,7 @@ class ScaleCalc {
             designSize.width < designSize.height
                 ? designSize.width
                 : designSize.height;
+        if (logicalMin == 0 || designMin == 0) return 1.0;
         return logicalMin / designMin;
     }
   }

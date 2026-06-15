@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_adapt_kit/core/hot_reload_guard.dart';
-import 'package:flutter_adapt_kit/core/scale_calc.dart';
-import 'package:flutter_adapt_kit/core/system_info.dart';
-import 'package:flutter_adapt_kit/entry/adapt_kit.dart';
-import 'package:flutter_adapt_kit/safe/android_classifier.dart';
-import 'package:flutter_adapt_kit/safe/harmony_classifier.dart';
-import 'package:flutter_adapt_kit/safe/ios_classifier.dart';
-import 'package:flutter_adapt_kit/safe/notch_classifier.dart';
-import 'package:flutter_adapt_kit/safe/safe_adapter.dart';
-import 'package:flutter_adapt_kit/text/text_scaler.dart';
+import 'package:flutter_screen_adapt_kit/core/hot_reload_guard.dart';
+import 'package:flutter_screen_adapt_kit/core/scale_calc.dart';
+import 'package:flutter_screen_adapt_kit/entry/adapt_kit.dart';
+import 'package:flutter_screen_adapt_kit/safe/android_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/harmony_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/ios_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/safe_adapter.dart';
+import 'package:flutter_screen_adapt_kit/text/text_scaler.dart';
 
 void main() {
   setUp(() {
@@ -23,7 +22,7 @@ void main() {
       await tester.pumpWidget(
         wrapApp(
           AdaptKit(
-            classifier: const iOSNotchClassifier(),
+            classifier: const IOSNotchClassifier(),
             child: const SizedBox(width: 100, height: 100),
           ),
         ),
@@ -36,45 +35,54 @@ void main() {
       await tester.pumpWidget(
         wrapApp(
           AdaptKit(
-            classifier: const iOSNotchClassifier(),
+            classifier: const IOSNotchClassifier(),
             child: const SizedBox(width: 100, height: 100),
           ),
         ),
       );
       final state = tester.state<AdaptKitState>(find.byType(AdaptKit));
       state.overrideNotch(
-        const NotchOverride(type: NotchType.dynamicIsland, topInset: 59, bottomInset: 34),
+        const NotchOverride(
+            type: NotchType.dynamicIsland, topInset: 59, bottomInset: 34),
       );
       expect(state.notchInfo.type, NotchType.dynamicIsland);
       expect(state.notchInfo.topInset, 59);
       expect(state.notchInfo.bottomInset, 34);
     });
 
-    testWidgets('resetNotch restores classifier-driven classification', (tester) async {
+    testWidgets('resetNotch restores classifier-driven classification',
+        (tester) async {
       await tester.pumpWidget(
         wrapApp(
           AdaptKit(
-            classifier: const iOSNotchClassifier(),
+            classifier: const IOSNotchClassifier(),
             child: const SizedBox(width: 100, height: 100),
           ),
         ),
       );
       final state = tester.state<AdaptKitState>(find.byType(AdaptKit));
-      state.overrideNotch(const NotchOverride(type: NotchType.dynamicIsland, topInset: 59, bottomInset: 34));
+      state.overrideNotch(const NotchOverride(
+          type: NotchType.dynamicIsland, topInset: 59, bottomInset: 34));
       expect(state.notchInfo.topInset, 59);
 
       state.resetNotch();
       expect(state.notchInfo.topInset, 0);
     });
 
-    testWidgets('cross-platform: 3 different classifiers all wire up', (tester) async {
-      await tester.pumpWidget(wrapApp(AdaptKit(classifier: const iOSNotchClassifier(), child: const SizedBox())));
+    testWidgets('cross-platform: 3 different classifiers all wire up',
+        (tester) async {
+      await tester.pumpWidget(wrapApp(AdaptKit(
+          classifier: const IOSNotchClassifier(), child: const SizedBox())));
       final iosState = tester.state<AdaptKitState>(find.byType(AdaptKit));
 
-      await tester.pumpWidget(wrapApp(AdaptKit(classifier: const AndroidNotchClassifier(), child: const SizedBox())));
+      await tester.pumpWidget(wrapApp(AdaptKit(
+          classifier: const AndroidNotchClassifier(),
+          child: const SizedBox())));
       final androidState = tester.state<AdaptKitState>(find.byType(AdaptKit));
 
-      await tester.pumpWidget(wrapApp(AdaptKit(classifier: const HarmonyOSNotchClassifier(), child: const SizedBox())));
+      await tester.pumpWidget(wrapApp(AdaptKit(
+          classifier: const HarmonyOSNotchClassifier(),
+          child: const SizedBox())));
       final harmonyState = tester.state<AdaptKitState>(find.byType(AdaptKit));
 
       expect(iosState.notchInfo, isNotNull);
@@ -86,7 +94,8 @@ void main() {
   group('AdaptKit state mutation', () {
     testWidgets('setStrategy updates state.strategy', (tester) async {
       await tester.pumpWidget(
-        wrapApp(AdaptKit(strategy: AdaptStrategy.width, child: const SizedBox())),
+        wrapApp(
+            AdaptKit(strategy: AdaptStrategy.width, child: const SizedBox())),
       );
       final state = tester.state<AdaptKitState>(find.byType(AdaptKit));
       expect(state.strategy, AdaptStrategy.width);
@@ -118,7 +127,8 @@ void main() {
       expect(state.supportSystemTextScale, false);
     });
 
-    testWidgets('setDesignSize with strategy override updates both', (tester) async {
+    testWidgets('setDesignSize with strategy override updates both',
+        (tester) async {
       await tester.pumpWidget(
         wrapApp(
           AdaptKit(
@@ -158,6 +168,8 @@ void main() {
       expect(probe.scaleResult, isNull);
       expect(probe.textBehavior, TextBehavior.scale);
       expect(probe.supportSystemTextScale, true);
+      expect(probe.statusBarHeight, 0);
+      expect(probe.notchHeight, 0);
     });
 
     testWidgets('returns real values inside AdaptKit', (tester) async {
@@ -190,7 +202,8 @@ void main() {
       expect(probe.textBehavior, TextBehavior.fixed);
     });
 
-    testWidgets('supportSystemTextScale propagates through context', (tester) async {
+    testWidgets('supportSystemTextScale propagates through context',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AdaptKit(
@@ -206,7 +219,8 @@ void main() {
   });
 
   group('AdaptKit.of from descendant', () {
-    testWidgets('finds AdaptKitState from any descendant context', (tester) async {
+    testWidgets('finds AdaptKitState from any descendant context',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AdaptKit(
@@ -236,11 +250,12 @@ void main() {
   });
 
   group('AdaptKit + SafeAdapter wrapping', () {
-    testWidgets('wraps child in SafeAdapter when notch present', (tester) async {
+    testWidgets('wraps child in SafeAdapter when notch present',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AdaptKit(
-            classifier: const iOSNotchClassifier(),
+            classifier: const IOSNotchClassifier(),
             safeMode: SafeMode.auto,
             child: Builder(
               builder: (context) => const SizedBox(width: 50, height: 50),
@@ -250,14 +265,16 @@ void main() {
       );
 
       final state = tester.state<AdaptKitState>(find.byType(AdaptKit));
-      state.overrideNotch(const NotchOverride(type: NotchType.wideNotch, topInset: 44));
+      state.overrideNotch(
+          const NotchOverride(type: NotchType.wideNotch, topInset: 44));
       await tester.pumpAndSettle();
 
       expect(find.byType(SafeAdapter), findsOneWidget);
       expect(find.byType(Padding), findsWidgets);
     });
 
-    testWidgets('does NOT wrap in SafeAdapter when no classifier', (tester) async {
+    testWidgets('does NOT wrap in SafeAdapter when no classifier',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AdaptKit(
@@ -286,6 +303,8 @@ class _ContextProbe extends StatelessWidget {
       scaleResult: context.adaptScaleResult,
       textBehavior: context.adaptTextBehavior,
       supportSystemTextScale: context.adaptSupportSystemTextScale,
+      statusBarHeight: context.statusBarHeight,
+      notchHeight: context.notchHeight,
       child: const SizedBox(width: 10, height: 10),
     );
   }
@@ -300,6 +319,8 @@ class _ProbeData extends StatelessWidget {
   final ScaleResult? scaleResult;
   final TextBehavior textBehavior;
   final bool supportSystemTextScale;
+  final double statusBarHeight;
+  final double notchHeight;
   final Widget child;
 
   const _ProbeData({
@@ -311,6 +332,8 @@ class _ProbeData extends StatelessWidget {
     required this.scaleResult,
     required this.textBehavior,
     required this.supportSystemTextScale,
+    required this.statusBarHeight,
+    required this.notchHeight,
     required this.child,
   });
 

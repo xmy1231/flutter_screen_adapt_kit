@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_adapt_kit/safe/ios_classifier.dart';
-import 'package:flutter_adapt_kit/core/system_info.dart';
-import 'package:flutter_adapt_kit/safe/notch_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/ios_classifier.dart';
+import 'package:flutter_screen_adapt_kit/core/system_info.dart';
+import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
 void main() {
-  group('iOSNotchClassifier', () {
-    final classifier = iOSNotchClassifier();
+  group('IOSNotchClassifier', () {
+    final classifier = IOSNotchClassifier();
 
     test('classifies none when padding is zero', () {
       final info = SystemInfo(padding: EdgeInsets.zero);
@@ -61,13 +61,42 @@ void main() {
       expect(result.type, NotchType.dynamicIsland);
     });
 
-    test('top=25 → wideNotch (catch-all, above 24 threshold)', () {
+    test('top=24 → none (exact status bar boundary)', () {
       final info = SystemInfo(
-        padding: const EdgeInsets.only(top: 25),
-        viewPadding: const EdgeInsets.only(top: 25),
+        padding: const EdgeInsets.only(top: 24, bottom: 0),
+        viewPadding: const EdgeInsets.only(top: 24, bottom: 0),
       );
       final result = classifier.classify(info);
+      expect(result.type, NotchType.none);
+    });
+
+    test('landscape: left >= 50 → dynamicIsland', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(left: 55, right: 55),
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
+      expect(result.type, NotchType.dynamicIsland);
+      expect(result.leftInset, 55);
+      expect(result.rightInset, 55);
+    });
+
+    test('landscape: left >= 44 → wideNotch', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(left: 48, right: 48),
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
       expect(result.type, NotchType.wideNotch);
+    });
+
+    test('landscape: none when no horizontal insets', () {
+      final info = SystemInfo(
+        padding: EdgeInsets.zero,
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
+      expect(result.type, NotchType.none);
     });
   });
 }

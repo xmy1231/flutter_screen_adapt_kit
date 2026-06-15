@@ -16,6 +16,7 @@ class PhysicalPixelBox extends StatelessWidget {
 
   double get _physicalWidth {
     if (width == 0) return 0;
+    if (dpr == 0 || !dpr.isFinite) return 0;
     return width / dpr;
   }
 

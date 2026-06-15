@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_adapt_kit/text/text_scaler.dart';
+import 'package:flutter_screen_adapt_kit/text/text_scaler.dart';
 
 void main() {
   group('TextScaler', () {

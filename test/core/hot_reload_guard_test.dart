@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_adapt_kit/core/hot_reload_guard.dart';
+import 'package:flutter_screen_adapt_kit/core/hot_reload_guard.dart';
 
 void main() {
   group('HotReloadGuard', () {

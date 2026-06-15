@@ -1,11 +1,13 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_adapt_kit/core/hot_reload_guard.dart';
-import 'package:flutter_adapt_kit/core/scale_calc.dart';
-import 'package:flutter_adapt_kit/core/scale_executor.dart';
-import 'package:flutter_adapt_kit/core/system_info.dart';
-import 'package:flutter_adapt_kit/safe/notch_classifier.dart';
-import 'package:flutter_adapt_kit/safe/safe_adapter.dart';
-import 'package:flutter_adapt_kit/text/text_scaler.dart';
+import 'package:flutter_screen_adapt_kit/core/hot_reload_guard.dart';
+import 'package:flutter_screen_adapt_kit/core/scale_calc.dart';
+import 'package:flutter_screen_adapt_kit/core/scale_executor.dart';
+import 'package:flutter_screen_adapt_kit/core/status_bar_config.dart';
+import 'package:flutter_screen_adapt_kit/core/system_info.dart';
+import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/safe_adapter.dart';
+import 'package:flutter_screen_adapt_kit/text/text_scaler.dart';
 
 class AdaptKit extends StatefulWidget {
   final Widget child;
@@ -85,6 +87,32 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
   }
 
   @override
+  void didUpdateWidget(AdaptKit oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    var needsReapply = false;
+    if (widget.designSize != oldWidget.designSize) {
+      _designSize = widget.designSize;
+      needsReapply = true;
+    }
+    if (widget.strategy != oldWidget.strategy) {
+      _strategy = widget.strategy;
+      needsReapply = true;
+    }
+    if (widget.textBehavior != oldWidget.textBehavior) {
+      _textBehavior = widget.textBehavior;
+      needsReapply = true;
+    }
+    if (widget.supportSystemTextScale != oldWidget.supportSystemTextScale) {
+      _supportSystemTextScale = widget.supportSystemTextScale;
+      needsReapply = true;
+    }
+    if (!_notchOverridden && widget.classifier != oldWidget.classifier) {
+      needsReapply = true;
+    }
+    if (needsReapply) _apply();
+  }
+
+  @override
   void didChangeMetrics() {
     _apply();
   }
@@ -118,8 +146,15 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
       bottomInset: override.bottomInset,
       leftInset: override.leftInset,
       rightInset: override.rightInset,
+      foldState: _info?.isFlat == true
+          ? FoldState.flat
+          : _info?.isFolded == true
+              ? FoldState.halfOpened
+              : FoldState.unknown,
+      hingeBounds: _info?.hingeBounds,
+      orientation: _info?.orientation,
     );
-    setState(() {});
+    _safeSetState(() {});
   }
 
   void resetNotch() {
@@ -127,18 +162,26 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
     _apply();
   }
 
+  void _safeSetState(VoidCallback callback) {
+    if (mounted) {
+      setState(callback);
+    }
+  }
+
   void _apply() {
     final view = WidgetsBinding.instance.platformDispatcher.views.first;
     final info = SystemInfo.fromFlutterView(view);
     final result = ScaleCalc.compute(info, _designSize, _strategy);
 
-    final renderView = WidgetsBinding.instance.renderView;
     final executor = ScaleExecutor();
     final config = executor.apply(result, info);
-    renderView.configuration = config;
+    // Apply to all render views managed by the binding (multi-view support).
+    for (final view in RendererBinding.instance.renderViews) {
+      view.configuration = config;
+    }
 
     if (!_notchOverridden) {
-      _notchInfo = widget.classifier?.classify(info);
+      _notchInfo = widget.classifier?.classify(info, orientation: info.orientation);
     }
 
     setState(() {
@@ -207,6 +250,25 @@ extension AdaptContext on BuildContext {
   double get adaptDpr => _AdaptInherited.of(this)?.scaleResult.adaptedDpr ?? 1.0;
   double get adaptSafeTop => _AdaptInherited.of(this)?.notchInfo.topInset ?? 0;
   double get adaptSafeBottom => _AdaptInherited.of(this)?.notchInfo.bottomInset ?? 0;
+  double get adaptSafeLeft => _AdaptInherited.of(this)?.notchInfo.leftInset ?? 0;
+  double get adaptSafeRight => _AdaptInherited.of(this)?.notchInfo.rightInset ?? 0;
   TextBehavior get adaptTextBehavior => _AdaptInherited.of(this)?.textBehavior ?? TextBehavior.scale;
   bool get adaptSupportSystemTextScale => _AdaptInherited.of(this)?.supportSystemTextScale ?? true;
+  FoldState? get adaptFoldState => _AdaptInherited.of(this)?.notchInfo.foldState;
+  Rect? get adaptHingeBounds => _AdaptInherited.of(this)?.notchInfo.hingeBounds;
+  bool get isFolded => _AdaptInherited.of(this)?.info.isFolded ?? false;
+  bool get isFlat => _AdaptInherited.of(this)?.info.isFlat ?? true;
+  Orientation get adaptOrientation => _AdaptInherited.of(this)?.info.orientation ?? Orientation.portrait;
+
+  double get statusBarHeight {
+    final topInset = adaptSafeTop;
+    final threshold = StatusBarConfig.currentPlatformThreshold;
+    return topInset > threshold ? threshold : topInset;
+  }
+
+  double get notchHeight {
+    final topInset = adaptSafeTop;
+    final threshold = StatusBarConfig.currentPlatformThreshold;
+    return topInset > threshold ? topInset - threshold : 0;
+  }
 }

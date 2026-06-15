@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_adapt_kit/entry/adapt_kit.dart';
+import 'package:flutter_screen_adapt_kit/entry/adapt_kit.dart';
 
 class AdaptDebugPanel extends StatefulWidget {
   final double designWidth;
@@ -29,7 +29,9 @@ class _AdaptDebugPanelState extends State<AdaptDebugPanel> {
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
+    final screenSize = MediaQuery.sizeOf(context);
     return Stack(
+      clipBehavior: Clip.hardEdge,
       children: [
         Positioned(
           left: _dx,
@@ -37,8 +39,8 @@ class _AdaptDebugPanelState extends State<AdaptDebugPanel> {
           child: GestureDetector(
             onPanUpdate: (details) {
               setState(() {
-                _dx += details.delta.dx;
-                _dy += details.delta.dy;
+                _dx = (_dx + details.delta.dx).clamp(0.0, screenSize.width);
+                _dy = (_dy + details.delta.dy).clamp(0.0, screenSize.height);
               });
             },
             child: Container(

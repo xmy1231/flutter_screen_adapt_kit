@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_adapt_kit/core/scale_calc.dart';
-import 'package:flutter_adapt_kit/core/scale_executor.dart';
-import 'package:flutter_adapt_kit/core/system_info.dart';
-import 'package:flutter_adapt_kit/safe/notch_classifier.dart';
+import 'package:flutter_screen_adapt_kit/core/scale_calc.dart';
+import 'package:flutter_screen_adapt_kit/core/scale_executor.dart';
+import 'package:flutter_screen_adapt_kit/core/system_info.dart';
+import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
 const int _iterations = 100;
 

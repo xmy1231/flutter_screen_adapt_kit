@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_adapt_kit/debug/debug_panel.dart';
-import 'package:flutter_adapt_kit/entry/adapt_kit.dart';
+import 'package:flutter_screen_adapt_kit/debug/debug_panel.dart';
+import 'package:flutter_screen_adapt_kit/entry/adapt_kit.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

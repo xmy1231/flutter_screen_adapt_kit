@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_adapt_kit/entry/adapt_kit.dart';
+import 'package:flutter_screen_adapt_kit/entry/adapt_kit.dart';
 
 enum UnscaleMode { full, context }
 
@@ -22,9 +22,11 @@ class UnscaleBox extends StatelessWidget {
     final adaptScale = context.adaptScaleResult?.scale;
     final uiScale = switch (mode) {
       UnscaleMode.full => adaptScale ?? (dpr * 375 / designWidth),
-      UnscaleMode.context => MediaQuery.textScalerOf(context).textScaleFactor,
+      UnscaleMode.context => MediaQuery.textScalerOf(context).scale(1.0),
     };
-    final inverse = uiScale == 0.0 ? 1.0 : 1.0 / uiScale;
+    // Guard against pathological inputs (0 → infinity, NaN → NaN matrix).
+    // Safe default: no unscale (inverse = 1.0).
+    final inverse = (uiScale == 0.0 || !uiScale.isFinite) ? 1.0 : 1.0 / uiScale;
     return Transform(
       transform: Matrix4.diagonal3Values(inverse, inverse, inverse),
       child: child,

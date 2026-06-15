@@ -22,7 +22,7 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_adapt_kit:
+  flutter_screen_adapt_kit:
     dependency: "direct main"
     description:
       path: ".."
@@ -60,4 +60,4 @@ packages:
     version: "2.2.0"
 sdks:
   dart: ">=3.12.0 <4.0.0"
-  flutter: ">=3.16.0"
+  flutter: ">=3.24.0"

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_adapt_kit/safe/notch_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
 enum SafeMode { auto, minimum, maximum, none }
 

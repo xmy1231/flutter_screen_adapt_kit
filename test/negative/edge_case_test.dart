@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_adapt_kit/core/hot_reload_guard.dart';
-import 'package:flutter_adapt_kit/core/scale_calc.dart';
-import 'package:flutter_adapt_kit/core/system_info.dart';
-import 'package:flutter_adapt_kit/entry/adapt_kit.dart';
-import 'package:flutter_adapt_kit/safe/notch_classifier.dart';
-import 'package:flutter_adapt_kit/safe/safe_adapter.dart';
-import 'package:flutter_adapt_kit/text/text_scaler.dart';
-import 'package:flutter_adapt_kit/widgets/physical_pixel_box.dart';
-import 'package:flutter_adapt_kit/widgets/unscale_box.dart';
+import 'package:flutter_screen_adapt_kit/core/hot_reload_guard.dart';
+import 'package:flutter_screen_adapt_kit/core/scale_calc.dart';
+import 'package:flutter_screen_adapt_kit/core/system_info.dart';
+import 'package:flutter_screen_adapt_kit/entry/adapt_kit.dart';
+import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/safe_adapter.dart';
+import 'package:flutter_screen_adapt_kit/text/text_scaler.dart';
+import 'package:flutter_screen_adapt_kit/widgets/physical_pixel_box.dart';
+import 'package:flutter_screen_adapt_kit/widgets/unscale_box.dart';
 
 void main() {
   group('Negative: TextScaler edge values', () {

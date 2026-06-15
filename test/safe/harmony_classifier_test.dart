@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_adapt_kit/safe/harmony_classifier.dart';
-import 'package:flutter_adapt_kit/core/system_info.dart';
-import 'package:flutter_adapt_kit/safe/notch_classifier.dart';
+import 'package:flutter_screen_adapt_kit/safe/harmony_classifier.dart';
+import 'package:flutter_screen_adapt_kit/core/system_info.dart';
+import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
 void main() {
   group('HarmonyOSNotchClassifier', () {
@@ -73,6 +73,51 @@ void main() {
         viewPadding: const EdgeInsets.only(top: 45, bottom: 0),
       );
       final result = classifier.classify(info);
+      expect(result.type, NotchType.holePunch);
+    });
+
+    test('top=46 → wideNotch (crosses hole-punch threshold)', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(top: 46, bottom: 0),
+        viewPadding: const EdgeInsets.only(top: 46, bottom: 0),
+      );
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.wideNotch);
+    });
+
+    test('bottom > 20 → wideNotch (dual screen scenario)', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(top: 30, bottom: 25),
+        viewPadding: const EdgeInsets.only(top: 30, bottom: 25),
+      );
+      final result = classifier.classify(info);
+      expect(result.type, NotchType.wideNotch);
+    });
+
+    test('landscape: left > 45 → wideNotch', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(left: 48, right: 10),
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
+      expect(result.type, NotchType.wideNotch);
+    });
+
+    test('landscape: left 30-35 → waterdrop', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(left: 32, right: 10),
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
+      expect(result.type, NotchType.waterdrop);
+    });
+
+    test('landscape: left 26-29 → holePunch', () {
+      final info = SystemInfo(
+        padding: const EdgeInsets.only(left: 27, right: 10),
+        logicalSize: const Size(844, 390),
+      );
+      final result = classifier.classify(info, orientation: Orientation.landscape);
       expect(result.type, NotchType.holePunch);
     });
   });

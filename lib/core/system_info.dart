@@ -1,8 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/widgets.dart';
 
-enum FoldState { unknown, folded, halfFolded, unfolded }
-
 class SystemInfo {
   final Size physicalSize;
   final double dpr;
@@ -11,7 +9,7 @@ class SystemInfo {
   final EdgeInsets padding;
   final EdgeInsets viewInsets;
   final double systemTextScale;
-  final FoldState foldState;
+  final List<ui.DisplayFeature> displayFeatures;
 
   const SystemInfo({
     this.physicalSize = Size.zero,
@@ -21,13 +19,57 @@ class SystemInfo {
     this.padding = EdgeInsets.zero,
     this.viewInsets = EdgeInsets.zero,
     this.systemTextScale = 1.0,
-    this.foldState = FoldState.unknown,
+    this.displayFeatures = const [],
   });
+
+  bool get isFolded {
+    for (final feature in displayFeatures) {
+      if (feature.type == ui.DisplayFeatureType.fold ||
+          feature.type == ui.DisplayFeatureType.hinge) {
+        if (feature.state == ui.DisplayFeatureState.postureHalfOpened) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool get isFlat {
+    for (final feature in displayFeatures) {
+      if (feature.type == ui.DisplayFeatureType.fold ||
+          feature.type == ui.DisplayFeatureType.hinge) {
+        if (feature.state == ui.DisplayFeatureState.postureFlat) {
+          return true;
+        }
+      }
+    }
+    return displayFeatures.isEmpty;
+  }
+
+  Rect? get hingeBounds {
+    for (final feature in displayFeatures) {
+      if (feature.type == ui.DisplayFeatureType.hinge ||
+          feature.type == ui.DisplayFeatureType.fold) {
+        return feature.bounds;
+      }
+    }
+    return null;
+  }
+
+  Orientation get orientation {
+    if (logicalSize.width == 0 || logicalSize.height == 0) {
+      return Orientation.portrait;
+    }
+    return logicalSize.width >= logicalSize.height
+        ? Orientation.landscape
+        : Orientation.portrait;
+  }
 
   factory SystemInfo.fromFlutterView(ui.FlutterView view) {
     final dpr = view.devicePixelRatio;
     final physicalSize = view.physicalSize;
     final vp = view.padding;
+    final displayFeatures = view.displayFeatures;
     return SystemInfo(
       physicalSize: physicalSize,
       dpr: dpr,
@@ -39,6 +81,7 @@ class SystemInfo {
       padding: EdgeInsets.fromViewPadding(vp, dpr),
       viewInsets: EdgeInsets.fromViewPadding(view.viewInsets, dpr),
       systemTextScale: 1.0,
+      displayFeatures: displayFeatures,
     );
   }
 
@@ -55,6 +98,7 @@ class SystemInfo {
       padding: data.padding,
       viewInsets: data.viewInsets,
       systemTextScale: data.textScaler.scale(1.0),
+      displayFeatures: data.displayFeatures,
     );
   }
 
@@ -69,7 +113,7 @@ class SystemInfo {
           padding == other.padding &&
           viewInsets == other.viewInsets &&
           systemTextScale == other.systemTextScale &&
-          foldState == other.foldState;
+          _listEquals(displayFeatures, other.displayFeatures);
 
   @override
   int get hashCode => Object.hash(
@@ -80,6 +124,14 @@ class SystemInfo {
         padding,
         viewInsets,
         systemTextScale,
-        foldState,
+        Object.hashAll(displayFeatures),
       );
+
+  static bool _listEquals<T>(List<T> a, List<T> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 }
