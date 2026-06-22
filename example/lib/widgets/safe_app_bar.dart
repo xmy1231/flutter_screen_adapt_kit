@@ -19,30 +19,22 @@ class SafeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize {
-    final h = height ?? kToolbarHeight;
-    final bottomH = bottom?.preferredSize.height ?? 0;
-    return Size.fromHeight(h + bottomH);
+    return Size.fromHeight((height ?? kToolbarHeight) + (bottom?.preferredSize.height ?? 0));
   }
 
   @override
   Widget build(BuildContext context) {
     final safeTop = showSafeTop ? context.adaptSafeTop : 0.0;
     final h = height ?? kToolbarHeight;
-    final bottomH = bottom?.preferredSize.height ?? 0;
-    return Container(
-      height: h + bottomH + safeTop,
-      padding: EdgeInsets.only(top: safeTop),
-      color: Colors.white,
-      child: AppBar(
-        title: title,
-        actions: actions,
-        bottom: bottom,
-        toolbarHeight: h,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        centerTitle: true,
-        titleSpacing: 16,
-      ),
+    return AppBar(
+      title: title,
+      actions: actions,
+      bottom: bottom,
+      toolbarHeight: h + safeTop,
+      elevation: 0,
+      backgroundColor: Colors.white,
+      centerTitle: true,
+      titleSpacing: 16,
     );
   }
 }

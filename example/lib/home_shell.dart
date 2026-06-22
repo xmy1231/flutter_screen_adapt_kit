@@ -40,27 +40,31 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _index, children: _pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.text_fields),
-            label: '文字',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.widgets),
-            label: '控件',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.view_headline),
-            label: 'AppBar',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.info_outline),
-            label: '状态',
-          ),
-        ],
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: (i) => setState(() => _index = i),
+          backgroundColor: Colors.white,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.text_fields),
+              label: '文字',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.widgets),
+              label: '控件',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.view_headline),
+              label: 'AppBar',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.info_outline),
+              label: '状态',
+            ),
+          ],
+        ),
       ),
     );
   }
