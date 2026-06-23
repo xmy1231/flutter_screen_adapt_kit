@@ -17,7 +17,10 @@ class _AppBarAdaptationPageState extends State<AppBarAdaptationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AppBar 适配')),
+      appBar: SafeAppBar(
+        title: const Text('AppBar 适配'),
+        showSafeTop: false,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

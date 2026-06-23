@@ -3,6 +3,7 @@ import 'package:flutter_screen_adapt_kit/entry/adapt_kit.dart';
 import 'package:flutter_screen_adapt_kit/widgets/unscale_box.dart';
 import 'package:flutter_screen_adapt_kit/widgets/physical_pixel_box.dart';
 import '../widgets/adaptive_section.dart';
+import '../widgets/safe_app_bar.dart';
 
 class WidgetAdaptationPage extends StatelessWidget {
   const WidgetAdaptationPage({super.key});
@@ -12,7 +13,10 @@ class WidgetAdaptationPage extends StatelessWidget {
     final dpr = context.adaptSystemInfo?.dpr ?? 3.0;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('控件适配')),
+      appBar: SafeAppBar(
+        title: const Text('控件适配'),
+        showSafeTop: false,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screen_adapt_kit/entry/adapt_kit.dart';
 import 'package:flutter_screen_adapt_kit/text/text_scaler.dart';
 import '../widgets/adaptive_section.dart';
+import '../widgets/safe_app_bar.dart';
 
 class StateSummaryPage extends StatelessWidget {
   final ValueNotifier<TextBehavior> textBehaviorNotifier;
@@ -14,7 +15,10 @@ class StateSummaryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('状态摘要')),
+      appBar: SafeAppBar(
+        title: const Text('状态摘要'),
+        showSafeTop: false,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

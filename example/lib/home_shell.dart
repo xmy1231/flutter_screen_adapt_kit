@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screen_adapt_kit/text/text_scaler.dart';
 import 'pages/text_adaptation_page.dart';
 import 'pages/widget_adaptation_page.dart';
@@ -39,14 +38,11 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark.copyWith(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.white,
-      ),
-      child: Scaffold(
-        body: IndexedStack(index: _index, children: _pages),
-        bottomNavigationBar: NavigationBar(
+    return Scaffold(
+      body: IndexedStack(index: _index, children: _pages),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),
           backgroundColor: Colors.white,
