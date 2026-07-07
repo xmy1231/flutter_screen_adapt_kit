@@ -31,7 +31,7 @@ void main() {
             child: Builder(
               builder: (context) {
                 expect(context.adaptScale, greaterThan(0));
-                expect(context.adaptDpr, greaterThan(0));
+                expect(context.adaptSystemInfo?.dpr ?? 1.0, greaterThan(0));
                 return const SizedBox(width: 100, height: 100);
               },
             ),

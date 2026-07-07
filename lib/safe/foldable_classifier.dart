@@ -68,31 +68,20 @@ class FoldableClassifier extends NotchClassifier {
     return false;
   }
 
-  static FoldPosture? getFoldPosture(SystemInfo info) {
+  static FoldState? getFoldPosture(SystemInfo info) {
     for (final feature in info.displayFeatures) {
       if (feature.type == ui.DisplayFeatureType.fold ||
           feature.type == ui.DisplayFeatureType.hinge) {
         switch (feature.state) {
           case ui.DisplayFeatureState.postureFlat:
-            return FoldPosture.flat;
+            return FoldState.flat;
           case ui.DisplayFeatureState.postureHalfOpened:
-            return FoldPosture.halfOpened;
+            return FoldState.halfOpened;
           default:
-            return FoldPosture.unknown;
+            return FoldState.unknown;
         }
       }
     }
     return null;
   }
-}
-
-enum FoldPosture {
-  flat,
-  halfOpened,
-  unknown,
-}
-
-extension FoldPostureExtension on FoldPosture {
-  bool get isFlat => this == FoldPosture.flat;
-  bool get isHalfOpened => this == FoldPosture.halfOpened;
 }

@@ -168,6 +168,18 @@ class _AdaptiveText extends StatelessWidget {
 
 extension _TextWidgetExtension on Text {
   Widget scalWith(TextScaler scaler) {
-    return Text(data!, style: style, textScaler: scaler);
+    return Text(
+      data!,
+      style: style,
+      textScaler: scaler,
+      textAlign: textAlign,
+      textDirection: textDirection,
+      locale: locale,
+      maxLines: maxLines,
+      overflow: overflow,
+      softWrap: softWrap,
+      textWidthBasis: textWidthBasis,
+      textHeightBehavior: textHeightBehavior,
+    );
   }
 }

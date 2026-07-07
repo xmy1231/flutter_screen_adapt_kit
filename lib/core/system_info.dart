@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 class SystemInfo {
@@ -113,7 +114,7 @@ class SystemInfo {
           padding == other.padding &&
           viewInsets == other.viewInsets &&
           systemTextScale == other.systemTextScale &&
-          _listEquals(displayFeatures, other.displayFeatures);
+          listEquals(displayFeatures, other.displayFeatures);
 
   @override
   int get hashCode => Object.hash(
@@ -126,12 +127,4 @@ class SystemInfo {
         systemTextScale,
         Object.hashAll(displayFeatures),
       );
-
-  static bool _listEquals<T>(List<T> a, List<T> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
 }

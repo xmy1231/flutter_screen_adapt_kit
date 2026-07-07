@@ -19,6 +19,11 @@ enum FoldState {
   unknown,
 }
 
+/// Represents the physical posture of a foldable device.
+/// - [flat]: Device is fully open/unfolded
+/// - [halfOpened]: Device is partially folded (e.g., laptop mode)
+/// - [unknown]: Unable to determine (either not a foldable device, or posture could not be detected)
+
 class NotchOverride {
   final NotchType type;
   final double topInset;

@@ -77,13 +77,14 @@ class AdaptDebugOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
     final result = context.adaptScaleResult;
+    final info = context.adaptSystemInfo;
     final notchInfo = context.adaptNotchInfo;
     if (result == null) return const SizedBox.shrink();
 
     return AdaptDebugPanel(
       designWidth: result.designSize.width,
       designHeight: result.designSize.height,
-      dpr: result.adaptedDpr,
+      dpr: info?.dpr ?? 1.0,
       scaleRatio: result.scale,
       notchType: notchInfo?.type.name,
     );

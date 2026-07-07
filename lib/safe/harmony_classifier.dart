@@ -2,6 +2,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screen_adapt_kit/core/system_info.dart';
 import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
+const double _kStatusBarHeightThreshold = 25.0;
+const double _kHolePunchMaxHeight = 29.0;
+const double _kWaterdropMinHeight = 30.0;
+const double _kWaterdropMaxHeight = 35.0;
+const double _kWideNotchMinHeight = 45.0;
+const double _kDualScreenBottomThreshold = 20.0;
+
 class HarmonyOSNotchClassifier extends NotchClassifier {
   const HarmonyOSNotchClassifier();
 
@@ -30,7 +37,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop <= 25 && effectiveBottom == 0) {
+    if (effectiveTop <= _kStatusBarHeightThreshold && effectiveBottom == 0) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.none,
@@ -39,7 +46,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveBottom > 20) {
+    if (effectiveBottom > _kDualScreenBottomThreshold) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.wideNotch,
@@ -48,7 +55,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop > 25 && effectiveTop <= 29) {
+    if (effectiveTop > _kStatusBarHeightThreshold && effectiveTop <= _kHolePunchMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.holePunch,
@@ -57,7 +64,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop >= 30 && effectiveTop <= 35) {
+    if (effectiveTop >= _kWaterdropMinHeight && effectiveTop <= _kWaterdropMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.waterdrop,
@@ -66,7 +73,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop > 35 && effectiveTop <= 45) {
+    if (effectiveTop > _kWaterdropMaxHeight && effectiveTop <= _kWideNotchMinHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.holePunch,
@@ -75,7 +82,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop > 45) {
+    if (effectiveTop > _kWideNotchMinHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.wideNotch,
@@ -107,7 +114,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveLeft <= 25 && effectiveRight <= 25) {
+    if (effectiveLeft <= _kStatusBarHeightThreshold && effectiveRight <= _kStatusBarHeightThreshold) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.none,
@@ -116,7 +123,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveLeft > 25 && effectiveLeft <= 29) {
+    if (effectiveLeft > _kStatusBarHeightThreshold && effectiveLeft <= _kHolePunchMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.holePunch,
@@ -125,7 +132,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveLeft >= 30 && effectiveLeft <= 35) {
+    if (effectiveLeft >= _kWaterdropMinHeight && effectiveLeft <= _kWaterdropMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.waterdrop,
@@ -134,7 +141,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveLeft > 35 && effectiveLeft <= 45) {
+    if (effectiveLeft > _kWaterdropMaxHeight && effectiveLeft <= _kWideNotchMinHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.holePunch,
@@ -143,7 +150,7 @@ class HarmonyOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveLeft > 45 || effectiveRight > 20) {
+    if (effectiveLeft > _kWideNotchMinHeight || effectiveRight > _kDualScreenBottomThreshold) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.wideNotch,

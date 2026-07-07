@@ -296,7 +296,7 @@ class _ContextProbe extends StatelessWidget {
   Widget build(BuildContext context) {
     return _ProbeData(
       scale: context.adaptScale,
-      dpr: context.adaptDpr,
+      dpr: context.adaptSystemInfo?.dpr ?? 1.0,
       safeTop: context.adaptSafeTop,
       safeBottom: context.adaptSafeBottom,
       notchInfo: context.adaptNotchInfo,

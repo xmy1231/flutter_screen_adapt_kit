@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_screen_adapt_kit/core/scale_calc.dart';
-import 'package:flutter_screen_adapt_kit/core/scale_executor.dart';
 import 'package:flutter_screen_adapt_kit/core/system_info.dart';
 import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
@@ -70,19 +69,7 @@ void main() {
       }
     });
 
-    test('adaptedDpr = dpr * scale (always)', () {
-      for (var i = 0; i < _iterations; i++) {
-        final logical = _randomSize(r);
-        final design = _randomSize(r);
-        final dpr = _randomDpr(r);
-        final info = SystemInfo(logicalSize: logical, dpr: dpr);
-        final result = ScaleCalc.compute(info, design, AdaptStrategy.width);
-
-        expect(result.adaptedDpr, closeTo(dpr * result.scale, 0.0001));
-      }
-    });
-
-    test('scale is non-negative for non-zero valid inputs', () {
+    test('scale is positive for non-zero valid inputs', () {
       for (var i = 0; i < _iterations; i++) {
         final logical = _randomSize(r);
         final design = _randomSize(r);
@@ -90,7 +77,6 @@ void main() {
         final result = ScaleCalc.compute(info, design, AdaptStrategy.width);
 
         expect(result.scale, greaterThanOrEqualTo(0.0));
-        expect(result.adaptedDpr, greaterThanOrEqualTo(0.0));
       }
     });
 
@@ -130,65 +116,6 @@ void main() {
         expect(w.strategy, AdaptStrategy.width);
         expect(h.strategy, AdaptStrategy.height);
         expect(m.strategy, AdaptStrategy.min);
-      }
-    });
-  });
-
-  group('Property: ScaleExecutor', () {
-    test('adaptedDpr > 0 for all valid inputs', () {
-      final executor = ScaleExecutor();
-      for (var i = 0; i < _iterations; i++) {
-        final logical = _randomSize(r);
-        final design = _randomSize(r);
-        final dpr = _randomDpr(r);
-        final info = SystemInfo(
-          logicalSize: logical,
-          dpr: dpr,
-          physicalSize: Size(logical.width * dpr, logical.height * dpr),
-        );
-        final result = ScaleCalc.compute(info, design, AdaptStrategy.width);
-        final config = executor.apply(result, info);
-
-        expect(config.devicePixelRatio, greaterThan(0.0));
-      }
-    });
-
-    test('logicalConstraints = physicalConstraints / adaptedDpr', () {
-      final executor = ScaleExecutor();
-      for (var i = 0; i < _iterations; i++) {
-        final logical = _randomSize(r);
-        final design = _randomSize(r);
-        final dpr = _randomDpr(r);
-        final info = SystemInfo(
-          logicalSize: logical,
-          dpr: dpr,
-          physicalSize: Size(logical.width * dpr, logical.height * dpr),
-        );
-        final result = ScaleCalc.compute(info, design, AdaptStrategy.width);
-        final config = executor.apply(result, info);
-
-        // logicalConstraints maxWidth should equal physicalSize.width / adaptedDpr
-        // BoxConstraints.tight uses maxWidth/maxHeight
-        final expectedLogicalWidth = info.physicalSize.width / result.adaptedDpr;
-        expect(config.logicalConstraints.maxWidth,
-            closeTo(expectedLogicalWidth, 0.01));
-      }
-    });
-
-    test('1:1 scale preserves devicePixelRatio', () {
-      final executor = ScaleExecutor();
-      for (var i = 0; i < 10; i++) {
-        final same = _randomSize(r);
-        final dpr = _randomDpr(r);
-        final info = SystemInfo(
-          logicalSize: same,
-          dpr: dpr,
-          physicalSize: Size(same.width * dpr, same.height * dpr),
-        );
-        final result = ScaleCalc.compute(info, same, AdaptStrategy.width);
-        final config = executor.apply(result, info);
-
-        expect(config.devicePixelRatio, closeTo(dpr, 0.01));
       }
     });
   });

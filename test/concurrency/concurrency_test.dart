@@ -43,11 +43,11 @@ void main() {
 
       // Final state should be consistent (not crash, not corrupt)
       expect(state.scale, isNotNull);
-      expect(state.adaptedDpr, isNotNull);
+      expect(state.info, isNotNull);
       expect(state.scale, greaterThan(0.0));
     });
 
-    testWidgets('rapid dpr changes: final adaptedDpr is finite', (tester) async {
+    testWidgets('rapid dpr changes: final scale is finite', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: AdaptKit(
@@ -67,9 +67,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Final state must be sane
-      expect(state.adaptedDpr, isNotNull);
-      expect(state.adaptedDpr.isFinite, isTrue);
-      expect(state.adaptedDpr, greaterThan(0.0));
+      expect(state.info.dpr, isNotNull);
+      expect(state.info.dpr.isFinite, isTrue);
+      expect(state.info.dpr, greaterThan(0.0));
     });
 
     testWidgets('rapid padding changes: notch info updates (or stays at zero if no classifier)',

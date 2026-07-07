@@ -4,6 +4,8 @@ import 'package:flutter_screen_adapt_kit/text/text_scaler.dart';
 import '../widgets/adaptive_section.dart';
 import '../widgets/safe_app_bar.dart';
 
+const double _kScaleThreshold = 0.0001;
+
 class StateSummaryPage extends StatelessWidget {
   final ValueNotifier<TextBehavior> textBehaviorNotifier;
 
@@ -41,7 +43,7 @@ class StateSummaryPage extends StatelessWidget {
               _InfoRow('安全区顶部', context.adaptSafeTop.toStringAsFixed(1)),
               _InfoRow('安全区底部', context.adaptSafeBottom.toStringAsFixed(1)),
               _InfoRow('Notch类型', context.adaptNotchInfo?.type.name ?? 'none'),
-              _InfoRow('Transform创建', (context.adaptScale - 1.0).abs() > 0.0001 ? '需要' : '不需要 (0开销)'),
+              _InfoRow('Transform创建', (context.adaptScale - 1.0).abs() > _kScaleThreshold ? '需要' : '不需要 (0开销)'),
             ],
           ),
         ],

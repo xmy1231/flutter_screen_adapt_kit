@@ -1,8 +1,5 @@
-library flutter_screen_adapt_kit;
-
 export 'core/hot_reload_guard.dart';
 export 'core/scale_calc.dart';
-export 'core/scale_executor.dart';
 export 'core/status_bar_config.dart';
 export 'core/system_info.dart';
 export 'debug/debug_panel.dart';

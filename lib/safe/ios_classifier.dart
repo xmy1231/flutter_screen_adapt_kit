@@ -2,6 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screen_adapt_kit/core/system_info.dart';
 import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
+const double _kDynamicIslandMinHeight = 50.0;
+const double _kWideNotchMinHeight = 44.0;
+const double _kLegacyNotchMaxHeight = 24.0;
+
 class IOSNotchClassifier extends NotchClassifier {
   const IOSNotchClassifier();
 
@@ -28,7 +32,7 @@ class IOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (top >= 50) {
+    if (top >= _kDynamicIslandMinHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.dynamicIsland,
@@ -37,7 +41,7 @@ class IOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (top >= 44) {
+    if (top >= _kWideNotchMinHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.wideNotch,
@@ -46,7 +50,7 @@ class IOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (top <= 24) {
+    if (top <= _kLegacyNotchMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.none,
@@ -82,7 +86,7 @@ class IOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (left >= 50 || right >= 50) {
+    if (left >= _kDynamicIslandMinHeight || right >= _kDynamicIslandMinHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.dynamicIsland,
@@ -93,7 +97,7 @@ class IOSNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (left >= 44 || right >= 44) {
+    if (left >= _kWideNotchMinHeight || right >= _kWideNotchMinHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.wideNotch,

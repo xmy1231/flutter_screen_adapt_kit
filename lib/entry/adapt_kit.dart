@@ -1,10 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'dart:io' show Platform;
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screen_adapt_kit/core/hot_reload_guard.dart';
 import 'package:flutter_screen_adapt_kit/core/scale_calc.dart';
-import 'package:flutter_screen_adapt_kit/core/scale_executor.dart';
 import 'package:flutter_screen_adapt_kit/core/status_bar_config.dart';
 import 'package:flutter_screen_adapt_kit/core/system_info.dart';
 import 'package:flutter_screen_adapt_kit/safe/android_classifier.dart';
@@ -57,7 +54,6 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
   SystemInfo get info => _info!;
   NotchInfo get notchInfo => _notchInfo ?? NotchInfo.zero;
   double get scale => _result?.scale ?? 1.0;
-  double get adaptedDpr => _result?.adaptedDpr ?? 1.0;
   Size get designSize => _designSize;
   AdaptStrategy get strategy => _strategy;
   TextBehavior get textBehavior => _textBehavior;
@@ -85,10 +81,6 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
     _strategy = widget.strategy;
     _textBehavior = widget.textBehavior;
     _supportSystemTextScale = widget.supportSystemTextScale;
-
-    if (!HotReloadGuard.ensure()) {
-      _apply();
-    }
   }
 
   @override
@@ -100,7 +92,7 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_result == null) _apply();
+    if (_result == null && !HotReloadGuard.ensure()) _apply();
   }
 
   @override
@@ -190,110 +182,179 @@ class AdaptKitState extends State<AdaptKit> with WidgetsBindingObserver {
     final info = SystemInfo.fromFlutterView(view);
     final result = ScaleCalc.compute(info, _designSize, _strategy);
 
-    final executor = ScaleExecutor();
-    final config = executor.apply(result, info);
-    // Apply to all render views managed by the binding (multi-view support).
-    for (final view in RendererBinding.instance.renderViews) {
-      view.configuration = config;
-    }
-
+    NotchInfo? newNotchInfo;
     if (!_notchOverridden) {
       final effectiveClassifier = widget.classifier ?? _defaultClassifier;
-      _notchInfo =
-          effectiveClassifier?.classify(info, orientation: info.orientation);
+      newNotchInfo = effectiveClassifier?.classify(info, orientation: info.orientation);
+    } else {
+      newNotchInfo = _notchInfo;
     }
 
-    setState(() {
-      _result = result;
-      _info = info;
-    });
+    final bool needsUpdate = _result != result || _info != info || _notchInfo != newNotchInfo;
+
+    if (needsUpdate) {
+      setState(() {
+        _result = result;
+        _info = info;
+        _notchInfo = newNotchInfo;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_result == null && !HotReloadGuard.ensure()) {
+      _apply();
+    }
+
     final result = _result;
     final info = _info;
     if (result == null || info == null) return widget.child;
 
     final notchInfo = _notchInfo ?? NotchInfo.zero;
-    final child = widget.classifier != null && notchInfo.type != NotchType.none
-        ? SafeAdapter(
-            notchInfo: notchInfo, mode: widget.safeMode, child: widget.child)
-        : widget.child;
+    final adaptedChild = _buildAdaptedChild(notchInfo);
 
-    return _AdaptInherited(
+    return _ScaleInherited(
       scaleResult: result,
       info: info,
-      notchInfo: notchInfo,
-      textBehavior: _textBehavior,
-      supportSystemTextScale: _supportSystemTextScale,
-      child: child,
+      child: _NotchInherited(
+        notchInfo: notchInfo,
+        child: _TextInherited(
+          textBehavior: _textBehavior,
+          supportSystemTextScale: _supportSystemTextScale,
+          child: adaptedChild,
+        ),
+      ),
     );
+  }
+
+  Widget _buildAdaptedChild(NotchInfo notchInfo) {
+    final scale = _result?.scale ?? 1.0;
+    final needsSafeAdapter = widget.classifier != null && notchInfo.type != NotchType.none;
+    final needsTransform = (scale - 1.0).abs() > _kScaleThreshold;
+
+    Widget child = widget.child;
+
+    if (needsTransform) {
+      child = ClipRect(
+        child: Transform.scale(
+          scale: scale,
+          child: child,
+        ),
+      );
+    }
+
+    if (needsSafeAdapter) {
+      return SafeAdapter(
+        notchInfo: notchInfo,
+        mode: widget.safeMode,
+        child: child,
+      );
+    }
+    return child;
   }
 }
 
-class _AdaptInherited extends InheritedWidget {
+const double _kScaleThreshold = 0.0001;
+
+class _ScaleInherited extends InheritedWidget {
   final ScaleResult scaleResult;
   final SystemInfo info;
+
+  const _ScaleInherited({
+    required this.scaleResult,
+    required this.info,
+    required super.child,
+  });
+
+  static _ScaleInherited? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_ScaleInherited>();
+  }
+
+  @override
+  bool updateShouldNotify(_ScaleInherited old) {
+    return scaleResult != old.scaleResult || info != old.info;
+  }
+}
+
+class _NotchInherited extends InheritedWidget {
   final NotchInfo notchInfo;
+
+  const _NotchInherited({
+    required this.notchInfo,
+    required super.child,
+  });
+
+  static _NotchInherited? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_NotchInherited>();
+  }
+
+  @override
+  bool updateShouldNotify(_NotchInherited old) {
+    return notchInfo != old.notchInfo;
+  }
+}
+
+class _TextInherited extends InheritedWidget {
   final TextBehavior textBehavior;
   final bool supportSystemTextScale;
 
-  const _AdaptInherited({
-    required this.scaleResult,
-    required this.info,
-    required this.notchInfo,
+  const _TextInherited({
     required this.textBehavior,
     required this.supportSystemTextScale,
     required super.child,
   });
 
-  static _AdaptInherited? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_AdaptInherited>();
+  static _TextInherited? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_TextInherited>();
   }
 
   @override
-  bool updateShouldNotify(_AdaptInherited old) {
-    return scaleResult != old.scaleResult ||
-        info != old.info ||
-        notchInfo != old.notchInfo ||
-        textBehavior != old.textBehavior ||
+  bool updateShouldNotify(_TextInherited old) {
+    return textBehavior != old.textBehavior ||
         supportSystemTextScale != old.supportSystemTextScale;
   }
 }
 
 extension AdaptContext on BuildContext {
-  ScaleResult? get adaptScaleResult => _AdaptInherited.of(this)?.scaleResult;
-  SystemInfo? get adaptSystemInfo => _AdaptInherited.of(this)?.info;
-  NotchInfo? get adaptNotchInfo => _AdaptInherited.of(this)?.notchInfo;
-  double get adaptScale => _AdaptInherited.of(this)?.scaleResult.scale ?? 1.0;
-  double get adaptDpr =>
-      _AdaptInherited.of(this)?.scaleResult.adaptedDpr ?? 1.0;
-  double get adaptSafeTop => _AdaptInherited.of(this)?.notchInfo.topInset ?? 0;
+  ScaleResult? get adaptScaleResult => _ScaleInherited.of(this)?.scaleResult;
+  SystemInfo? get adaptSystemInfo => _ScaleInherited.of(this)?.info;
+  NotchInfo? get adaptNotchInfo => _NotchInherited.of(this)?.notchInfo;
+  double get adaptScale => _ScaleInherited.of(this)?.scaleResult.scale ?? 1.0;
+  double get adaptSafeTop => _NotchInherited.of(this)?.notchInfo.topInset ?? 0;
   double get adaptSafeBottom =>
-      _AdaptInherited.of(this)?.notchInfo.bottomInset ?? 0;
+      _NotchInherited.of(this)?.notchInfo.bottomInset ?? 0;
   double get adaptSafeLeft =>
-      _AdaptInherited.of(this)?.notchInfo.leftInset ?? 0;
+      _NotchInherited.of(this)?.notchInfo.leftInset ?? 0;
   double get adaptSafeRight =>
-      _AdaptInherited.of(this)?.notchInfo.rightInset ?? 0;
+      _NotchInherited.of(this)?.notchInfo.rightInset ?? 0;
   TextBehavior get adaptTextBehavior =>
-      _AdaptInherited.of(this)?.textBehavior ?? TextBehavior.scale;
+      _TextInherited.of(this)?.textBehavior ?? TextBehavior.scale;
   bool get adaptSupportSystemTextScale =>
-      _AdaptInherited.of(this)?.supportSystemTextScale ?? true;
+      _TextInherited.of(this)?.supportSystemTextScale ?? true;
   FoldState? get adaptFoldState =>
-      _AdaptInherited.of(this)?.notchInfo.foldState;
-  Rect? get adaptHingeBounds => _AdaptInherited.of(this)?.notchInfo.hingeBounds;
-  bool get isFolded => _AdaptInherited.of(this)?.info.isFolded ?? false;
-  bool get isFlat => _AdaptInherited.of(this)?.info.isFlat ?? true;
+      _NotchInherited.of(this)?.notchInfo.foldState;
+  Rect? get adaptHingeBounds =>
+      _NotchInherited.of(this)?.notchInfo.hingeBounds;
+  bool get isFolded => _ScaleInherited.of(this)?.info.isFolded ?? false;
+  bool get isFlat => _ScaleInherited.of(this)?.info.isFlat ?? true;
   Orientation get adaptOrientation =>
-      _AdaptInherited.of(this)?.info.orientation ?? Orientation.portrait;
+      _ScaleInherited.of(this)?.info.orientation ?? Orientation.portrait;
 
+  /// Height of the status bar area.
+/// Returns the platform-specific threshold (e.g., 24pt on iOS, 25pt on Android)
+/// if the top inset exceeds it, otherwise returns the raw top inset value.
+/// Use this when you need the actual status bar height for layout calculations.
   double get statusBarHeight {
     final topInset = adaptSafeTop;
     final threshold = StatusBarConfig.currentPlatformThreshold;
     return topInset > threshold ? threshold : topInset;
   }
 
+/// Height of the notch (刘海) area specifically.
+/// Returns (topInset - statusBarThreshold) when topInset exceeds the threshold,
+/// otherwise returns 0.
+/// Use this when you need to know how much the notch extends beyond the status bar.
   double get notchHeight {
     final topInset = adaptSafeTop;
     final threshold = StatusBarConfig.currentPlatformThreshold;

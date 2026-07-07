@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screen_adapt_kit/core/system_info.dart';
 import 'package:flutter_screen_adapt_kit/safe/notch_classifier.dart';
 
+const double _kStatusBarHeightThreshold = 25.0;
+const double _kWaterdropMaxHeight = 35.0;
+
 class AndroidNotchClassifier extends NotchClassifier {
   const AndroidNotchClassifier();
 
@@ -31,7 +34,7 @@ class AndroidNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop <= 25 && effectiveBottom == 0) {
+    if (effectiveTop <= _kStatusBarHeightThreshold && effectiveBottom == 0) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.none,
@@ -40,7 +43,7 @@ class AndroidNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop <= 25 && effectiveBottom > 0) {
+    if (effectiveTop <= _kStatusBarHeightThreshold && effectiveBottom > 0) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.holePunch,
@@ -49,7 +52,7 @@ class AndroidNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop > 25 && effectiveTop <= 35) {
+    if (effectiveTop > _kStatusBarHeightThreshold && effectiveTop <= _kWaterdropMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.waterdrop,
@@ -58,7 +61,7 @@ class AndroidNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveTop > 35) {
+    if (effectiveTop > _kWaterdropMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.holePunch,
@@ -91,7 +94,7 @@ class AndroidNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveLeft <= 25 && effectiveRight <= 25) {
+    if (effectiveLeft <= _kStatusBarHeightThreshold && effectiveRight <= _kStatusBarHeightThreshold) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.none,
@@ -100,7 +103,7 @@ class AndroidNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveLeft > 25 && effectiveLeft <= 35) {
+    if (effectiveLeft > _kStatusBarHeightThreshold && effectiveLeft <= _kWaterdropMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.waterdrop,
@@ -109,7 +112,7 @@ class AndroidNotchClassifier extends NotchClassifier {
       );
     }
 
-    if (effectiveRight > 25 && effectiveRight <= 35) {
+    if (effectiveRight > _kStatusBarHeightThreshold && effectiveRight <= _kWaterdropMaxHeight) {
       return NotchInfo.fromFoldable(
         info: info,
         type: NotchType.waterdrop,
